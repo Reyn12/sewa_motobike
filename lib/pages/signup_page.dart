@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:course_motobike/common/info.dart';
+import 'package:course_motobike/sources/auth_source.dart';
 import 'package:course_motobike/widget/button_primary.dart';
 import 'package:course_motobike/widget/button_secondary.dart';
 import 'package:course_motobike/widget/input.dart';
@@ -18,6 +20,31 @@ class _SignUpPageState extends State<SignUpPage> {
   final edtName = TextEditingController();
   final edtEmail = TextEditingController();
   final edtPassword = TextEditingController();
+
+  createNewAccount() {
+    if (edtName.text == '') return Info.error("Name is required");
+    if (edtEmail.text == '') return Info.error("Email is required");
+    if (edtPassword.text == '') return Info.error("Password is required");
+
+    Info.netral("Loading ...");
+
+    // Sign Up dari AuthSource
+    AuthSource.signUp(edtName.text, edtEmail.text, edtPassword.text).then((
+      message,
+    ) {
+      if (message == "success") {
+        Info.success("Account created successfully");
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            log("Navigating to Sign In");
+            Navigator.pushReplacementNamed(context, "/signin");
+          }
+        });
+      } else {
+        Info.error(message);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
             obsecure: true,
           ),
           Gap(60),
-          ButtonPrimary(
-            onTap: () {
-              log("Button Create Account di Click");
-            },
-            text: "Create New Account",
-          ),
+          ButtonPrimary(onTap: createNewAccount, text: "Create New Account"),
           Gap(30),
           DottedLine(
             dashLength: 6,
@@ -98,7 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
           Gap(30),
           ButtonSecondary(
             onTap: () {
-              log("Button Sign In di Click");
+              Navigator.pushReplacementNamed(context, "/signin");
             },
             text: "Sign In",
           ),
